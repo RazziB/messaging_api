@@ -128,8 +128,9 @@ def login():
 # route to register new users.
 @app.route('/register', methods=['POST'])
 def register():
-    print()
     req_data = request.get_json()
+    print(req_data['username'])
+
     # Use login validator here as well, it is the same.
     if login_validator.validate(req_data):
         if User.query.filter_by(username=req_data['username']).first():

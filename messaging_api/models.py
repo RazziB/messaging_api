@@ -9,6 +9,7 @@ def load_user(user_id):
 
 # User model
 class User(db.Model, UserMixin):
+    __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(10), unique=True, nullable=False)
     password = db.Column(db.String(60), nullable=False)
@@ -18,6 +19,7 @@ class User(db.Model, UserMixin):
 
 # Message model
 class Message(db.Model):
+    __tablename__ = 'message'
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     sender = db.Column(db.String, db.ForeignKey('user.username'), nullable=False)
     receiver = db.Column(db.String, db.ForeignKey('user.username'), nullable=False)
