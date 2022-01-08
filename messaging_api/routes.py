@@ -3,11 +3,13 @@ from flask import request, jsonify
 from flask_login import login_user, current_user
 from sqlalchemy import desc
 
-import run
 from messaging_api.models import User, Message
 from messaging_api import app, message_validator, login_validator, db
 from flask_bcrypt import Bcrypt
 
+@app.shell_context_processor
+def make_shell_context():
+    return {'db': db, 'User': User, 'Message': Message}
 
 # Route to write a message
 @app.route('/message', methods=['POST'])
@@ -126,6 +128,7 @@ def login():
 # route to register new users.
 @app.route('/register', methods=['POST'])
 def register():
+    print()
     req_data = request.get_json()
     # Use login validator here as well, it is the same.
     if login_validator.validate(req_data):
@@ -145,7 +148,8 @@ def register():
 
 @app.route('/')
 def home():
-    return "<center><h1>It's " + run.Test + "alive</h1></center>"
+    return "<center><h1>It's alive</h1></center>"
+
 # Keep the session alive for 10 minutes
 @app.before_request
 def before_request():

@@ -1,0 +1,6 @@
+messaging_api/database.db
+/venv
+.idea/
+__pycache__/
+messaging_api/__init__.pyc
+messaging_api/__pycache__/
