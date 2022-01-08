@@ -4,12 +4,18 @@ from cerberus import Validator
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 import os
+import re
 # Initialization
+
+uri = os.getenv("DATABASE_URL")  # or other relevant config var
+if uri and uri.startswith("postgres://"):
+    uri = uri.replace("postgres://", "postgresql://", 1)
+
 app = Flask(__name__)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL') or 'sqlite:///' + os.path.join(os.getcwd(), 'data.sqlite')
+app.config['SQLALCHEMY_DATABASE_URI'] = uri or 'sqlite:///' + os.path.join(os.getcwd(), 'data.sqlite')
 app.config['SECRET_KEY'] = 'secretkey'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
