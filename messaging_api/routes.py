@@ -142,7 +142,9 @@ def register():
     else:
         return login_validator.errors, 400
 
-
+@app.route('/')
+def home():
+    return "<center><h1>It's alive</h1></center>"
 # Keep the session alive for 10 minutes
 @app.before_request
 def before_request():
