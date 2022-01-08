@@ -1,14 +1,13 @@
 from messaging_api import db, login_manager
 from datetime import datetime
 from flask_login import UserMixin
-from flask_login import login_user, current_user
 
 
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-
+# User model
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(10), unique=True, nullable=False)
@@ -17,7 +16,7 @@ class User(db.Model, UserMixin):
     messages_sent = db.relationship('Message', backref='msg_sender', lazy=True, foreign_keys='[Message.sender]')
     messages_received = db.relationship('Message', backref='msg_receiver', lazy=True, foreign_keys='[Message.receiver]')
 
-
+# Message model
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     sender = db.Column(db.String, db.ForeignKey('user.username'), nullable=False)
