@@ -3,6 +3,7 @@ from flask import request, jsonify
 from flask_login import login_user, current_user
 from sqlalchemy import desc
 
+import run
 from messaging_api.models import User, Message
 from messaging_api import app, message_validator, login_validator, db
 from flask_bcrypt import Bcrypt
@@ -144,7 +145,7 @@ def register():
 
 @app.route('/')
 def home():
-    return "<center><h1>It's alive</h1></center>"
+    return "<center><h1>It's " + run.Test + "alive</h1></center>"
 # Keep the session alive for 10 minutes
 @app.before_request
 def before_request():
