@@ -18,13 +18,13 @@ def message():
     # Check form validation
     if message_validator.validate(req_data):
         # Check if current user logged in is indeed the sender
-        if current_user.is_authenticated and current_user.username == req_data['sender']:
+        if current_user.is_authenticated:
             # Check if receiver user exists in DB.
             _receiver = User.query.filter_by(username=req_data['receiver']).first()
             if _receiver:
 
                 msg = Message(
-                    sender=req_data['sender'],
+                    sender=current_user.username,
                     receiver=req_data['receiver'],
                     message=req_data['message'],
                     subject=req_data['subject']

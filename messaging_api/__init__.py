@@ -19,7 +19,6 @@ bcrypt = Bcrypt(app)
 # Validators:
 message_validator = Validator()
 message_validator.schema = {
-    "sender": {'type': 'string', 'required': True, 'minlength':3, 'maxlength': 10},
     "receiver": {'type': 'string', 'required': True, 'minlength':3, 'maxlength': 10},
     "message": {'type': 'string', 'required': True, 'minlength':3, 'maxlength':100},
     "subject": {'type': 'string', 'required': True, 'minlength':3, 'maxlength':20},
