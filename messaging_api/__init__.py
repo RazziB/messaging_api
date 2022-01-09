@@ -13,7 +13,7 @@ ENV = 'prod'
 if ENV == 'dev':
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:12345@localhost/hometaskdb'
 else:
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://pioeiiburltmxh:6394a2d23b2f6b9b1036fa08f7af9091f6e110f3ea194b272c2c495de3147928@ec2-34-236-87-247.compute-1.amazonaws.com:5432/dbh5pav0r22mka'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://wenhnqbbcxwklm:67c1b52bf27c99454b2f953ae40c78dbf5c844e002477c14ae4cfd902e683c6f@ec2-3-230-219-251.compute-1.amazonaws.com:5432/d2p6geeti5r3sc'
 app.config['SECRET_KEY'] = 'secretkey'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
