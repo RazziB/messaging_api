@@ -130,7 +130,6 @@ def login():
 def register():
     req_data = request.get_json()
     print(req_data['username'])
-
     # Use login validator here as well, it is the same.
     if login_validator.validate(req_data):
         if User.query.filter_by(username=req_data['username']).first():
