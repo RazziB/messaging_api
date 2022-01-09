@@ -1,0 +1,208 @@
+{
+	"info": {
+		"_postman_id": "232c89c0-3270-4020-9a28-173cc4d7dc20",
+		"name": "HomeTask",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "/register",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"user1\",\r\n    \"password\": \"12345\"\r\n}"
+				},
+				"url": {
+					"raw": "https://home-task-api.herokuapp.com/register",
+					"protocol": "https",
+					"host": [
+						"home-task-api",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"register"
+					]
+				},
+				"description": "Register users to the system. required body: \"username\" and \"password\".\n\nEach argument length must be between 3 - 10"
+			},
+			"response": []
+		},
+		{
+			"name": "/login",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"user1\",\r\n    \"password\": \"12345\"\r\n}"
+				},
+				"url": {
+					"raw": "https://home-task-api.herokuapp.com/login",
+					"protocol": "https",
+					"host": [
+						"home-task-api",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"login"
+					]
+				},
+				"description": "Login user to the system, after login, user is able to do these actions without identifying:\n\nAccess messages received by, and sent to the user,\n\nDelete messages the user composed,\n\nRead a single message - the last one the user received that hasn't been read yet ( changes the 'read' state of the message to True )."
+			},
+			"response": []
+		},
+		{
+			"name": "/message",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \r\n    \"receiver\": \"user1\",\r\n    \"message\": \"This is a message content.\",\r\n    \"subject\": \"message subject \"\r\n\r\n}"
+				},
+				"url": {
+					"raw": "https://home-task-api.herokuapp.com/message",
+					"protocol": "https",
+					"host": [
+						"home-task-api",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"message"
+					]
+				},
+				"description": "send a message to an existing user in the DB.\n\nmessage must include: receiver, subject, message.\n\nDatetime and sender will be automatically generated."
+			},
+			"response": []
+		},
+		{
+			"name": "/get_messages",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://home-task-api.herokuapp.com/get_messages",
+					"protocol": "https",
+					"host": [
+						"home-task-api",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"get_messages"
+					]
+				},
+				"description": "Get all messages sent to and received by the logged in user."
+			},
+			"response": []
+		},
+		{
+			"name": "/read_message",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://home-task-api.herokuapp.com/read_message",
+					"protocol": "https",
+					"host": [
+						"home-task-api",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"read_message"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/get_unread",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://home-task-api.herokuapp.com/get_unread",
+					"protocol": "https",
+					"host": [
+						"home-task-api",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"get_unread"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/delete/<msg_id>",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "https://home-task-api.herokuapp.com/delete/1",
+					"protocol": "https",
+					"host": [
+						"home-task-api",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"delete",
+						"1"
+					]
+				},
+				"description": "delete a message by it's id"
+			},
+			"response": []
+		},
+		{
+			"name": "/logout",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": null,
+				"description": "log out the currently logged in user."
+			},
+			"response": []
+		}
+	]
+}
