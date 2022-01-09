@@ -1,52 +1,55 @@
 import datetime
-from flask import request, jsonify
-from flask_login import login_user, current_user
+from flask import request, jsonify, current_app, redirect
+from flask_login import login_user, current_user, login_required, logout_user
 from sqlalchemy import desc
 
 from messaging_api.models import User, Message
 from messaging_api import app, message_validator, login_validator, db
 from flask_bcrypt import Bcrypt
 
+
 @app.shell_context_processor
 def make_shell_context():
     return {'db': db, 'User': User, 'Message': Message}
+
 
 # Route to write a message
 @app.route('/message', methods=['POST'])
 def message():
     req_data = request.get_json()
+
     # Check form validation
-    if message_validator.validate(req_data):
-        # Check if current user logged in is indeed the sender
-        if current_user.is_authenticated:
-            # Check if receiver user exists in DB.
-            _receiver = User.query.filter_by(username=req_data['receiver']).first()
-            if _receiver:
-
-                msg = Message(
-                    sender=current_user.username,
-                    receiver=req_data['receiver'],
-                    message=req_data['message'],
-                    subject=req_data['subject']
-                )
-                db.session.add(msg)
-                db.session.commit()
-                return {'message': f"Message sent to {req_data['receiver']}"}, 200
-            else:
-                # Receiver does not exist
-                return {'message': f"User {req_data['receiver']} does not exist."}, 401
-        else:
-            return {'message': 'You need to be logged in to do that.'}, 401
-
-    else:
+    if not message_validator.validate(req_data):
         return message_validator.errors, 400
+
+    # Check if current user logged in is indeed the sender
+    elif not current_user.is_authenticated:
+        return {'message': 'You need to be logged in to do that.'}, 401
+
+    # Check if receiver user exists in DB.
+    elif not User.query.filter_by(username=req_data['receiver']).first():
+        # Receiver does not exist
+        return {'message': f"User {req_data['receiver']} does not exist."}, 401
+
+    # Compose and send the message
+    else:
+        msg = Message(
+            sender=current_user.username,
+            receiver=req_data['receiver'],
+            message=req_data['message'],
+            subject=req_data['subject']
+        )
+        db.session.add(msg)
+        db.session.commit()
+        return {'message': f"Message sent to {req_data['receiver']}"}, 201
 
 
 # Route to get all messages that the current logged in user received / sent.
 @app.route('/get_messages')
 def get_messages():
-    if current_user.is_authenticated:
-
+    if not current_user.is_authenticated:
+        return {'message': 'You need to be logged in for that.'}, 400
+    else:
         sent_msgs = [Message.as_dict(msg) for msg in current_user.messages_sent]
         rec_msgs = [Message.as_dict(msg) for msg in current_user.messages_received]
 
@@ -58,28 +61,28 @@ def get_messages():
         # Make messages dict.
         msgs_dict = {'sent_messages': sent_msgs, 'received_messages': rec_msgs}
         return jsonify(msgs_dict), 200
-    else:
-        return {'message': 'You need to be logged in'}, 400
 
 
 # Route to get all unread messages the current user logged in has received.
 @app.route('/get_unread')
 def get_unread():
-    if current_user.is_authenticated:
+    if not current_user.is_authenticated:
+        return {'message': 'You need to be logged in for that.'}, 401
+    else:
         # get a list of all unread messages that the current user received.
         unread = list(filter((lambda msg: msg.read is False), current_user.messages_received))
         # turn each message to a dictionary.
         unread = [Message.as_dict(msg) for msg in unread]
         return jsonify(unread), 200
-    else:
-        return {'message': 'You need to be logged in for that.'}, 401
 
 
 # Route to get the last unread message sent to the currently logged in user.
 @app.route('/read_message')
 def read_message():
     return_msg = None
-    if current_user.is_authenticated:
+    if not current_user.is_authenticated:
+        return {'message': 'You need to be logged in for that.'}, 401
+    else:
         # Get the last ( by id ) unread message the current user received. Sorry for the long line.
         msg = Message.query.filter_by(read=False, receiver=current_user.username).order_by(desc(Message.id)).first()
         if msg:
@@ -87,14 +90,13 @@ def read_message():
             msg.read = True
         db.session.commit()
         return return_msg or {'message': 'No unread messages.'}, 200
-    else:
-        return {'message': 'You need to be logged in for that.'}, 401
 
 
 # Route to delete a message by id. This route does not make use of any request-body.
 @app.route('/delete/<req_id>', methods=['DELETE'])
 def delete_message(req_id):
-
+    if not current_user.is_authenticated:
+        return {'message': 'You need to be logged in for that.'}, 401
     msg = Message.query.filter_by(id=req_id).first()
     if msg and msg.sender == current_user.username:
         db.session.delete(msg)
@@ -131,26 +133,36 @@ def register():
     req_data = request.get_json()
     print(req_data['username'])
     # Use login validator here as well, it is the same.
-    if login_validator.validate(req_data):
-        if User.query.filter_by(username=req_data['username']).first():
-            return {'username': 'This username already exists'}, 400
-        else:
-            newUser = User(
-                # Generate a random pass hash.
-                username=req_data['username'],
-                password=Bcrypt().generate_password_hash(req_data['password']).decode('utf-8'))
-
-            db.session.add(newUser)
-            db.session.commit()
-            return {'message': f'User {newUser.username} created successfully'}, 200
-    else:
+    if not login_validator.validate(req_data):
         return login_validator.errors, 400
+
+    elif User.query.filter_by(username=req_data['username']).first():
+        return {'username': 'This username already exists'}, 400
+    else:
+        newUser = User(
+            # Generate a random pass hash.
+            username=req_data['username'],
+            password=Bcrypt().generate_password_hash(req_data['password']).decode('utf-8'))
+
+        db.session.add(newUser)
+        db.session.commit()
+        return {'message': f'User {newUser.username} created successfully'}, 200
+
 
 @app.route('/')
 def home():
     return "<center><h1>It's alive</h1></center>"
 
+
 # Keep the session alive for 10 minutes
 @app.before_request
 def before_request():
     app.permanent_session_lifetime = datetime.timedelta(minutes=10)
+
+
+@app.route("/logout")
+def logout():
+    if not current_user.is_authenticated:
+        return {'message': 'You need to be logged in for that.'}, 401
+    logout_user()
+    return {'message': 'logged out'}

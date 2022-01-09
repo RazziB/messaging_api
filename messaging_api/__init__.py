@@ -9,7 +9,11 @@ app = Flask(__name__)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+ENV = 'prod'
+if ENV == 'dev':
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:12345@localhost/hometaskdb'
+else:
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://pioeiiburltmxh:6394a2d23b2f6b9b1036fa08f7af9091f6e110f3ea194b272c2c495de3147928@ec2-34-236-87-247.compute-1.amazonaws.com:5432/dbh5pav0r22mka'
 app.config['SECRET_KEY'] = 'secretkey'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
