@@ -20,16 +20,16 @@ def message():
 
     # Check form validation
     if not message_validator.validate(req_data):
-        return message_validator.errors, 400
+        return jsonify(message_validator.errors), 400
 
     # Check if current user logged in is indeed the sender
     elif not current_user.is_authenticated:
-        return {'message': 'You need to be logged in to do that.'}, 401
+        return jsonify({'message': 'You need to be logged in to do that.'}), 401
 
     # Check if receiver user exists in DB.
     elif not User.query.filter_by(username=req_data['receiver']).first():
         # Receiver does not exist
-        return {'message': f"User {req_data['receiver']} does not exist."}, 401
+        return jsonify({'message': f"User {req_data['receiver']} does not exist."}), 401
 
     # Compose and send the message
     else:
@@ -41,14 +41,14 @@ def message():
         )
         db.session.add(msg)
         db.session.commit()
-        return {'message': f"Message sent to {req_data['receiver']}"}, 201
+        return jsonify({'message': f"Message sent to {req_data['receiver']}"}), 201
 
 
 # Route to get all messages that the current logged in user received / sent.
 @app.route('/get_messages')
 def get_messages():
     if not current_user.is_authenticated:
-        return {'message': 'You need to be logged in for that.'}, 400
+        return jsonify({'message': 'You need to be logged in for that.'}), 400
     else:
         sent_msgs = [Message.as_dict(msg) for msg in current_user.messages_sent]
         rec_msgs = [Message.as_dict(msg) for msg in current_user.messages_received]
@@ -60,14 +60,14 @@ def get_messages():
         db.session.commit()
         # Make messages dict.
         msgs_dict = {'sent_messages': sent_msgs, 'received_messages': rec_msgs}
-        return jsonify(msgs_dict), 200
+        return jsonify(jsonify(msgs_dict)), 200
 
 
 # Route to get all unread messages the current user logged in has received.
 @app.route('/get_unread')
 def get_unread():
     if not current_user.is_authenticated:
-        return {'message': 'You need to be logged in for that.'}, 401
+        return jsonify({'message': 'You need to be logged in for that.'}), 401
     else:
         # get a list of all unread messages that the current user received.
         unread = list(filter((lambda msg: msg.read is False), current_user.messages_received))
@@ -81,7 +81,7 @@ def get_unread():
 def read_message():
     return_msg = None
     if not current_user.is_authenticated:
-        return {'message': 'You need to be logged in for that.'}, 401
+        return jsonify({'message': 'You need to be logged in for that.'}), 401
     else:
         # Get the last ( by id ) unread message the current user received. Sorry for the long line.
         msg = Message.query.filter_by(read=False, receiver=current_user.username).order_by(desc(Message.id)).first()
@@ -89,24 +89,24 @@ def read_message():
             return_msg = Message.as_dict(msg)
             msg.read = True
         db.session.commit()
-        return return_msg or {'message': 'No unread messages.'}, 200
+        return jsonify(return_msg) or jsonify({'message': 'No unread messages.'}), 200
 
 
 # Route to delete a message by id. This route does not make use of any request-body.
 @app.route('/delete/<req_id>', methods=['DELETE'])
 def delete_message(req_id):
     if not current_user.is_authenticated:
-        return {'message': 'You need to be logged in for that.'}, 401
+        return jsonify({'message': 'You need to be logged in for that.'}), 401
     msg = Message.query.filter_by(id=req_id).first()
     if msg and msg.sender == current_user.username:
         db.session.delete(msg)
         db.session.commit()
-        return {'message': 'message was deleted.'}, 200
+        return jsonify({'message': 'message was deleted.'}), 200
     elif msg:
         # Message sender is not current user.
-        return {'message': 'You are not authorized.'}, 403
+        return jsonify({'message': 'You are not authorized.'}), 403
     else:
-        return {'message': "Message does not exist."}, 400
+        return jsonify({'message': "Message does not exist."}), 400
 
 
 # Route to log in based on existing users currently in the database.
@@ -120,11 +120,11 @@ def login():
         # User must exist in DB, and passwords must match.
         if _user and Bcrypt().check_password_hash(_user.password, req_data['password']):
             login_user(_user)
-            return {'message': f'User {_user.username} logged in.'}, 200
+            return jsonift({'message': f'User {_user.username} logged in.'}), 200
         else:
-            return {'message': 'Check your username and password.'}, 400
+            return jsonify({'message': 'Check your username and password.'}), 400
     else:
-        return login_validator.errors, 400
+        return jsonify(login_validator.errors), 400
 
 
 # route to register new users.
@@ -134,10 +134,10 @@ def register():
     print(req_data['username'])
     # Use login validator here as well, it is the same.
     if not login_validator.validate(req_data):
-        return login_validator.errors, 400
+        return jsonify(login_validator.errors), 400
 
     elif User.query.filter_by(username=req_data['username']).first():
-        return {'username': 'This username already exists'}, 400
+        return jsonify({'username': 'This username already exists'}), 400
     else:
         newUser = User(
             # Generate a random pass hash.
@@ -146,7 +146,7 @@ def register():
 
         db.session.add(newUser)
         db.session.commit()
-        return {'message': f'User {newUser.username} created successfully'}, 200
+        return jsonify({'message': f'User {newUser.username} created successfully'}), 200
 
 
 @app.route('/')
@@ -163,6 +163,6 @@ def before_request():
 @app.route("/logout")
 def logout():
     if not current_user.is_authenticated:
-        return {'message': 'You need to be logged in for that.'}, 401
+        return jsonify({'message': 'You need to be logged in for that.'}), 401
     logout_user()
-    return {'message': 'logged out'}
+    return jsonify({'message': 'logged out'})
