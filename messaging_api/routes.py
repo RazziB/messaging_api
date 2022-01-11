@@ -120,7 +120,7 @@ def login():
         # User must exist in DB, and passwords must match.
         if _user and Bcrypt().check_password_hash(_user.password, req_data['password']):
             login_user(_user)
-            return jsonift({'message': f'User {_user.username} logged in.'}), 200
+            return jsonify({'message': f'User {_user.username} logged in.'}), 200
         else:
             return jsonify({'message': 'Check your username and password.'}), 400
     else:
