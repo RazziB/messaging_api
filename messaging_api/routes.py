@@ -60,7 +60,7 @@ def get_messages():
         db.session.commit()
         # Make messages dict.
         msgs_dict = {'sent_messages': sent_msgs, 'received_messages': rec_msgs}
-        return jsonify(jsonify(msgs_dict)), 200
+        return jsonify(msgs_dict), 200
 
 
 # Route to get all unread messages the current user logged in has received.
