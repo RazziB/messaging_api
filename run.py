@@ -1,12 +1,8 @@
-from messaging_api import app, db
+import logging
 
-
+from messaging_api import app, socketio
+logger = logging.getLogger()
+logger.setLevel(level=logging.DEBUG)
 if __name__ == '__main__':
-
-    @app.before_first_request
-    def create_tables():
-        db.create_all()
-
-
-    app.run(port=5003, debug=True)
+    socketio.run(app, host='127.0.0.1', port=3004, log_output=True)
 
