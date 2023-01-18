@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class ApiErrors(str, Enum):
+    BAD_PROFILE_PHOTO = 'BAD_PROFILE_PHOTO'
     SAME_USER = 'SAME_USER'
     BAD_REQUEST = 'BAD_REQUEST'
     UNKNOWN_ERROR = 'UNKNOWN_ERROR'

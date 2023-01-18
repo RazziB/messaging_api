@@ -12,7 +12,7 @@ class User(UserMixin, FrozenObject):
                  user_id: str,
                  username: str,
                  encrypted_password: str,
-                 last_active: datetime
+                 **kwargs
                  ):
         self.user_id = user_id
         self.username = username
@@ -23,7 +23,7 @@ class User(UserMixin, FrozenObject):
 
     def convert_to_dict(self):
         user_dict = super().convert_to_dict()
-        user_dict['encrypted_password'] = str(user_dict.get('encrypted_password'))
-        user_dict['key'] = user_dict.get('user_id')
+        user_dict['encrypted_password'] = user_dict.get('encrypted_password')
+        # user_dict['key'] = user_dict.get('user_id')
 
         return user_dict

@@ -1,3 +1,4 @@
+from handlers.files_handler import FilesHandler
 from handlers.login_handler import LoginHandler
 from handlers.messages_handler import MessagesHandler
 from handlers.register_handler import RegisterHandler
@@ -6,6 +7,7 @@ from handlers.sid_handler import SIDHandler
 
 class ApiHandler:
     def __init__(self):
+        self.files_handler = FilesHandler()
         self.messages_handler = MessagesHandler()
         self.register_handler = RegisterHandler()
         self.login_handler = LoginHandler()

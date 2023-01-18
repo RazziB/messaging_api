@@ -2,7 +2,7 @@ import datetime
 import logging
 
 from flask_cors import CORS
-from flask import request, jsonify
+from flask import request, jsonify, send_file
 from flask_login import current_user, login_required, logout_user
 from flask_socketio import emit, disconnect
 
@@ -29,6 +29,7 @@ def authenticated_only(f):
 
     return wrapped
 
+
 @socketio.on_error_default
 def handle_socket_exception(ex):
     app.logger.exception(msg="error occured")
@@ -36,7 +37,6 @@ def handle_socket_exception(ex):
         if ex.soc_listener:
             app.logger.info(msg="send emit ")
             emit(ex.soc_listener, ex.description)
-
 
 
 @app.errorhandler(ApiException)
@@ -54,6 +54,7 @@ def handle_api_exception(ex: ApiException):
 def add_header(response):
     response.headers['Access-Control-Allow-Credentials'] = 'true'
     return response
+
 
 #
 # @app.errorhandler(Exception)
@@ -227,10 +228,27 @@ def send_message(json):
         if receiver_id:
             receiver_sid = api_handler.sid_handler.get_user_sid_from_user_id(user_id=receiver_id)
             if receiver_sid:
-                emit('receive_message', {'user_id': current_user.get_id(), 'message': message.jsonify()}, to=receiver_sid)
+                emit('receive_message', {'user_id': current_user.get_id(), 'message': message.jsonify()},
+                     to=receiver_sid)
 
 
 @app.route('/get_my_id', methods=['GET'])
 @login_required
 def get_my_id():
     return jsonify({'my_id': current_user.get_id()})
+
+
+@app.post('/upload_profile_pic')
+@login_required
+def upload_profile_pic():
+    pic_object = request.files.get('profile_img')
+    api_handler.files_handler.upload_profile_picture(photo_obj=pic_object)
+    return jsonify({'ok': True})
+
+
+@app.get('/get_profile_pic')
+@login_required
+def get_profile_pic():
+    user_id = current_user.get_id()
+    path = api_handler.files_handler.send_profile_photo(user_id=user_id)
+    return send_file(path)

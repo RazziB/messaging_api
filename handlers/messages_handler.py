@@ -28,7 +28,11 @@ class MessagesHandler(BaseApiHandler):
     def get_contact_list(self):
         users_ids = self.db_utils.get_recent_chats(user_id=current_user.get_id())
         users = self.user_db_utils.get_users_by_ids(user_ids=users_ids)
-        return [user.convert_to_dict() for user in users]
+
+        users = [user.convert_to_dict() for user in users]
+        for user in users:
+            user.pop('encrypted_password')
+        return users
 
     def get_chats_from_contacts(self, users_ids: list):
         current_user_id = current_user.get_id()

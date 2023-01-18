@@ -8,7 +8,7 @@ class FrozenObject(ABC, object):
 
     @abstractmethod
     def __init__(self, *args, **kwargs):
-        raise NotImplementedError
+        raise NotImplementedError()
 
     def __setattr__(self, key, value):
         if self.__is_frozen and not hasattr(self, key):
